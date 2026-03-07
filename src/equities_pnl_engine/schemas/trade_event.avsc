@@ -1,0 +1,18 @@
+{
+  "type": "record",
+  "name": "TradeLifecycleEvent",
+  "namespace": "equities.pnlenigne",
+  "fields": [
+    { "name": "event_type", "type": "string" },
+    { "name": "trade_id", "type": "string" },
+    { "name": "account_id", "type": "string" },
+    { "name": "symbol", "type": "string" },
+    { "name": "quantity", "type": "string" },
+    { "name": "price", "type": "string" },
+    { "name": "currency", "type": "string" },
+    { "name": "trade_timestamp", "type": "string" },
+    { "name": "event_timestamp", "type": "string" },
+    { "name": "corporate_action_id", "type": ["null", "string"], "default": null }
+  ]
+}
+

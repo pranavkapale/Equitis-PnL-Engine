@@ -1,0 +1,14 @@
+{
+  "type": "record",
+  "name": "PnLEvent",
+  "namespace": "equities.pnlenigne",
+  "fields": [
+    { "name": "account_id", "type": "string" },
+    { "name": "symbol", "type": "string" },
+    { "name": "as_of", "type": "string" },
+    { "name": "realized", "type": "string" },
+    { "name": "unrealized", "type": "string" },
+    { "name": "fees", "type": "string" },
+    { "name": "dividends", "type": "string" }
+  ]
+}
