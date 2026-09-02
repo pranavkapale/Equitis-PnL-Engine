@@ -1,0 +1,15 @@
+{
+  "type": "record",
+  "name": "AvroExecution",
+  "namespace": "com.pnlengine.equities.streaming.avro",
+  "fields": [
+    {"name": "id", "type": "string"},
+    {"name": "accountId", "type": "string"},
+    {"name": "symbol", "type": "string"},
+    {"name": "side", "type": "string"},
+    {"name": "quantity", "type": {"type": "bytes", "logicalType": "decimal", "precision": 38, "scale": 18}},
+    {"name": "price", "type": {"type": "bytes", "logicalType": "decimal", "precision": 38, "scale": 18}},
+    {"name": "commission", "type": {"type": "bytes", "logicalType": "decimal", "precision": 38, "scale": 18}},
+    {"name": "timestamp", "type": {"type": "long", "logicalType": "timestamp-millis"}}
+  ]
+}

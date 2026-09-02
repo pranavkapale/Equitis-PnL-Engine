@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: equitis-pnl-engine
+  kafka:
+    streams:
+      application-id: equitis-pnl-engine
+      bootstrap-servers: localhost:9092
+      properties:
+        processing.guarantee: exactly_once_v2
+        default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+    properties:
+      schema.registry.url: mock://equitis-registry

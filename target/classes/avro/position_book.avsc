@@ -1,0 +1,29 @@
+{
+  "type": "record",
+  "name": "AvroPositionBook",
+  "namespace": "com.pnlengine.equities.streaming.avro",
+  "fields": [
+    {"name": "accountId", "type": "string"},
+    {"name": "symbol", "type": "string"},
+    {"name": "netQuantity", "type": {"type": "bytes", "logicalType": "decimal", "precision": 38, "scale": 18}},
+    {"name": "costBasis", "type": {"type": "bytes", "logicalType": "decimal", "precision": 38, "scale": 18}},
+    {"name": "realizedPnl", "type": {"type": "bytes", "logicalType": "decimal", "precision": 38, "scale": 18}},
+    {"name": "unrealizedPnl", "type": {"type": "bytes", "logicalType": "decimal", "precision": 38, "scale": 18}},
+    {
+      "name": "openLots",
+      "type": {
+        "type": "array",
+        "items": {
+          "type": "record",
+          "name": "AvroTaxLot",
+          "fields": [
+            {"name": "id", "type": "string"},
+            {"name": "quantity", "type": {"type": "bytes", "logicalType": "decimal", "precision": 38, "scale": 18}},
+            {"name": "price", "type": {"type": "bytes", "logicalType": "decimal", "precision": 38, "scale": 18}},
+            {"name": "timestamp", "type": {"type": "long", "logicalType": "timestamp-millis"}}
+          ]
+        }
+      }
+    }
+  ]
+}
