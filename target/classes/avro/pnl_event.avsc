@@ -1,0 +1,13 @@
+{
+  "type": "record",
+  "name": "AvroPnlEvent",
+  "namespace": "com.pnlengine.equities.streaming.avro",
+  "fields": [
+    {"name": "accountId", "type": "string"},
+    {"name": "symbol", "type": "string"},
+    {"name": "realizedPnl", "type": {"type": "bytes", "logicalType": "decimal", "precision": 38, "scale": 18}},
+    {"name": "unrealizedPnl", "type": {"type": "bytes", "logicalType": "decimal", "precision": 38, "scale": 18}},
+    {"name": "reportingCurrency", "type": "string"},
+    {"name": "timestamp", "type": {"type": "long", "logicalType": "timestamp-millis"}}
+  ]
+}

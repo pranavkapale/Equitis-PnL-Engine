@@ -9,6 +9,11 @@
 /Users/pranavkapale/AgenticAIWorkspace/Equitis-PnL-Engine/src/main/java/com/pnlengine/equities/streaming/EquitisPnLEngineApplication.java
 /Users/pranavkapale/AgenticAIWorkspace/Equitis-PnL-Engine/src/main/java/com/pnlengine/equities/streaming/PositionProcessor.java
 /Users/pranavkapale/AgenticAIWorkspace/Equitis-PnL-Engine/src/main/java/com/pnlengine/equities/streaming/TopologyConfiguration.java
+/Users/pranavkapale/AgenticAIWorkspace/Equitis-PnL-Engine/src/main/java/com/pnlengine/equities/valuation/ConflationProcessor.java
+/Users/pranavkapale/AgenticAIWorkspace/Equitis-PnL-Engine/src/main/java/com/pnlengine/equities/valuation/ValuationProcessor.java
 /Users/pranavkapale/AgenticAIWorkspace/Equitis-PnL-Engine/target/generated-sources/avro/com/pnlengine/equities/streaming/avro/AvroExecution.java
+/Users/pranavkapale/AgenticAIWorkspace/Equitis-PnL-Engine/target/generated-sources/avro/com/pnlengine/equities/streaming/avro/AvroFxRate.java
+/Users/pranavkapale/AgenticAIWorkspace/Equitis-PnL-Engine/target/generated-sources/avro/com/pnlengine/equities/streaming/avro/AvroMarketTick.java
+/Users/pranavkapale/AgenticAIWorkspace/Equitis-PnL-Engine/target/generated-sources/avro/com/pnlengine/equities/streaming/avro/AvroPnlEvent.java
 /Users/pranavkapale/AgenticAIWorkspace/Equitis-PnL-Engine/target/generated-sources/avro/com/pnlengine/equities/streaming/avro/AvroPositionBook.java
 /Users/pranavkapale/AgenticAIWorkspace/Equitis-PnL-Engine/target/generated-sources/avro/com/pnlengine/equities/streaming/avro/AvroTaxLot.java

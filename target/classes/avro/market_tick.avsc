@@ -1,0 +1,10 @@
+{
+  "type": "record",
+  "name": "AvroMarketTick",
+  "namespace": "com.pnlengine.equities.streaming.avro",
+  "fields": [
+    {"name": "symbol", "type": "string"},
+    {"name": "price", "type": {"type": "bytes", "logicalType": "decimal", "precision": 38, "scale": 18}},
+    {"name": "timestamp", "type": {"type": "long", "logicalType": "timestamp-millis"}}
+  ]
+}

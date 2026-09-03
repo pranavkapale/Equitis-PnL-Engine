@@ -1,0 +1,10 @@
+{
+  "type": "record",
+  "name": "AvroFxRate",
+  "namespace": "com.pnlengine.equities.streaming.avro",
+  "fields": [
+    {"name": "currencyPair", "type": "string"},
+    {"name": "rate", "type": {"type": "bytes", "logicalType": "decimal", "precision": 38, "scale": 18}},
+    {"name": "timestamp", "type": {"type": "long", "logicalType": "timestamp-millis"}}
+  ]
+}

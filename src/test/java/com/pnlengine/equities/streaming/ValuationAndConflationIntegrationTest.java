@@ -2,7 +2,7 @@ package com.pnlengine.equities.streaming;
 
 import com.pnlengine.equities.streaming.avro.AvroExecution;
 import com.pnlengine.equities.streaming.avro.AvroFxRate;
-import com.pnlengine.equities.streaming.avro.AvroPositionBook;
+import com.pnlengine.equities.streaming.avro.AvroMarketTick;
 import com.pnlengine.equities.streaming.avro.AvroPnlEvent;
 import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
@@ -25,10 +25,11 @@ import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class TopologyIntegrationTest {
+public class ValuationAndConflationIntegrationTest {
 
     private TopologyTestDriver testDriver;
-    private TestInputTopic<String, AvroExecution> inputTopic;
+    private TestInputTopic<String, AvroExecution> executionTopic;
+    private TestInputTopic<String, AvroMarketTick> tickTopic;
     private TestInputTopic<String, AvroFxRate> fxTopic;
     private TestOutputTopic<String, AvroPnlEvent> outputTopic;
 
@@ -41,7 +42,7 @@ public class TopologyIntegrationTest {
         config.buildPipeline(builder);
 
         Properties props = new Properties();
-        props.put(org.apache.kafka.streams.StreamsConfig.APPLICATION_ID_CONFIG, "test-app");
+        props.put(org.apache.kafka.streams.StreamsConfig.APPLICATION_ID_CONFIG, "test-app-valuation");
         props.put(org.apache.kafka.streams.StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "dummy:1234");
         
         testDriver = new TopologyTestDriver(builder.build(), props);
@@ -51,14 +52,19 @@ public class TopologyIntegrationTest {
         SpecificAvroSerde<AvroExecution> executionSerde = new SpecificAvroSerde<>();
         executionSerde.configure(serdeConfig, false);
 
+        SpecificAvroSerde<AvroMarketTick> tickSerde = new SpecificAvroSerde<>();
+        tickSerde.configure(serdeConfig, false);
+
+        SpecificAvroSerde<AvroFxRate> fxSerde = new SpecificAvroSerde<>();
+        fxSerde.configure(serdeConfig, false);
+
         SpecificAvroSerde<AvroPnlEvent> pnlSerde = new SpecificAvroSerde<>();
         pnlSerde.configure(serdeConfig, false);
 
-        SpecificAvroSerde<com.pnlengine.equities.streaming.avro.AvroFxRate> fxSerde = new SpecificAvroSerde<>();
-        fxSerde.configure(serdeConfig, false);
-
-        inputTopic = testDriver.createInputTopic("trade-executions", new StringSerializer(), executionSerde.serializer());
+        executionTopic = testDriver.createInputTopic("trade-executions", new StringSerializer(), executionSerde.serializer());
+        tickTopic = testDriver.createInputTopic("market-ticks", new StringSerializer(), tickSerde.serializer());
         fxTopic = testDriver.createInputTopic("fx-rates", new StringSerializer(), fxSerde.serializer());
+        
         outputTopic = testDriver.createOutputTopic("pnl-events", new StringDeserializer(), pnlSerde.deserializer());
     }
 
@@ -70,18 +76,19 @@ public class TopologyIntegrationTest {
     }
 
     @Test
-    public void testTopologyProcessesExecutionAndState() {
-        // Seed FX
-        com.pnlengine.equities.streaming.avro.AvroFxRate fxRate = com.pnlengine.equities.streaming.avro.AvroFxRate.newBuilder()
+    public void testValuationAndConflation() throws InterruptedException {
+        // 1. Seed FX Rate (EUR_USD = 1.10)
+        AvroFxRate fxRate = AvroFxRate.newBuilder()
                 .setCurrencyPair("EUR_USD")
-                .setRate(new BigDecimal("1.00")) // 1.0 rate so PnL equals what we expect
+                .setRate(new BigDecimal("1.10"))
                 .setTimestamp(Instant.now())
                 .build();
         fxTopic.pipeInput("EUR_USD", fxRate);
 
         String key = "ACC-1|AAPL";
         
-        AvroExecution exec1 = AvroExecution.newBuilder()
+        // 2. Seed Execution (Buy 10 @ 100)
+        AvroExecution exec = AvroExecution.newBuilder()
                 .setId("exec-1")
                 .setAccountId("ACC-1")
                 .setSymbol("AAPL")
@@ -91,33 +98,47 @@ public class TopologyIntegrationTest {
                 .setCommission(new BigDecimal("5"))
                 .setTimestamp(Instant.now())
                 .build();
+        executionTopic.pipeInput(key, exec);
 
-        inputTopic.pipeInput(key, exec1);
+        // The initial UnrlPnL is calculated using the execution price as the market price: (10 * 100) - 1005 = -5
+        // FX Normalized = -5 * 1.10 = -5.50
+        AvroPnlEvent firstPnl = outputTopic.readKeyValue().value;
+        assertThat(firstPnl.getUnrealizedPnl()).isEqualByComparingTo("-5.50");
 
-        AvroPnlEvent output1 = outputTopic.readKeyValue().value;
-        // In Phase 3, this outputs AvroPnlEvent which has UnrlPnL.
-        // We just verify it produces an event.
-        assertThat(output1.getSymbol()).isEqualTo("AAPL");
-
-        // Duplicate execution should be dropped
-        inputTopic.pipeInput(key, exec1);
-        assertThat(outputTopic.isEmpty()).isTrue();
-
-        // Second execution
-        AvroExecution exec2 = AvroExecution.newBuilder()
-                .setId("exec-2")
-                .setAccountId("ACC-1")
+        // 3. Market Tick 1 (Price = 110)
+        // Market Value = 10 * 110 = 1100. UnrlPnL = 1100 - 1005 = 95.
+        // FX Normalized = 95 * 1.10 = 104.5
+        AvroMarketTick tick1 = AvroMarketTick.newBuilder()
                 .setSymbol("AAPL")
-                .setSide("SELL")
-                .setQuantity(new BigDecimal("5"))
                 .setPrice(new BigDecimal("110"))
-                .setCommission(new BigDecimal("2"))
                 .setTimestamp(Instant.now())
                 .build();
+        tickTopic.pipeInput(key, tick1);
 
-        inputTopic.pipeInput(key, exec2);
+        // The difference from 0 to 104.5 is large, it should emit immediately
+        AvroPnlEvent tickPnl1 = outputTopic.readKeyValue().value;
+        assertThat(tickPnl1.getUnrealizedPnl()).isEqualByComparingTo("104.5");
+
+        // 4. Market Tick 2 (Price = 110.001) - Tiny change, should be conflated
+        AvroMarketTick tick2 = AvroMarketTick.newBuilder()
+                .setSymbol("AAPL")
+                .setPrice(new BigDecimal("110.001"))
+                .setTimestamp(Instant.now())
+                .build();
+        tickTopic.pipeInput(key, tick2);
         
-        AvroPnlEvent output2 = outputTopic.readKeyValue().value;
-        assertThat(output2.getSymbol()).isEqualTo("AAPL");
+        // Should not emit immediately
+        assertThat(outputTopic.isEmpty()).isTrue();
+
+        // Advance wall clock to trigger Punctuator (250ms elapsed)
+        testDriver.advanceWallClockTime(java.time.Duration.ofMillis(300));
+        
+        // Output should now be emitted by the punctuator
+        assertThat(outputTopic.isEmpty()).isFalse();
+        AvroPnlEvent tickPnl2 = outputTopic.readKeyValue().value;
+        
+        // Market Value = 1100.01, UnrlPnL = 1100.01 - 1005 = 95.01
+        // FX Normalized = 95.01 * 1.10 = 104.511
+        assertThat(tickPnl2.getUnrealizedPnl()).isEqualByComparingTo("104.511");
     }
 }

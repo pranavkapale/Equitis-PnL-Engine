@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.pnlengine.equities.streaming.TopologyIntegrationTest" time="0.432" tests="1" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.pnlengine.equities.streaming.ValuationAndConflationIntegrationTest" time="0.979" tests="1" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="25"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -60,8 +60,8 @@
     <property name="socksNonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
     <property name="java.class.version" value="69.0"/>
   </properties>
-  <testcase name="testTopologyProcessesExecutionAndState" classname="com.pnlengine.equities.streaming.TopologyIntegrationTest" time="0.43">
-    <system-out><![CDATA[01:24:14.621 [main] INFO io.confluent.kafka.serializers.KafkaAvroSerializerConfig -- KafkaAvroSerializerConfig values: 
+  <testcase name="testValuationAndConflation" classname="com.pnlengine.equities.streaming.ValuationAndConflationIntegrationTest" time="0.972">
+    <system-out><![CDATA[01:24:13.675 [main] INFO io.confluent.kafka.serializers.KafkaAvroSerializerConfig -- KafkaAvroSerializerConfig values: 
 	auto.register.schemas = true
 	avro.reflection.allow.null = false
 	avro.remove.java.properties = false
@@ -123,7 +123,7 @@
 	use.schema.id = -1
 	value.subject.name.strategy = class io.confluent.kafka.serializers.subject.TopicNameStrategy
 
-01:24:14.622 [main] INFO io.confluent.kafka.serializers.KafkaAvroDeserializerConfig -- KafkaAvroDeserializerConfig values: 
+01:24:13.679 [main] INFO io.confluent.kafka.serializers.KafkaAvroDeserializerConfig -- KafkaAvroDeserializerConfig values: 
 	auto.register.schemas = true
 	avro.reflection.allow.null = false
 	avro.use.logical.type.converters = false
@@ -187,7 +187,7 @@
 	use.schema.id = -1
 	value.subject.name.strategy = class io.confluent.kafka.serializers.subject.TopicNameStrategy
 
-01:24:14.623 [main] INFO io.confluent.kafka.serializers.KafkaAvroSerializerConfig -- KafkaAvroSerializerConfig values: 
+01:24:13.679 [main] INFO io.confluent.kafka.serializers.KafkaAvroSerializerConfig -- KafkaAvroSerializerConfig values: 
 	auto.register.schemas = true
 	avro.reflection.allow.null = false
 	avro.remove.java.properties = false
@@ -249,7 +249,7 @@
 	use.schema.id = -1
 	value.subject.name.strategy = class io.confluent.kafka.serializers.subject.TopicNameStrategy
 
-01:24:14.623 [main] INFO io.confluent.kafka.serializers.KafkaAvroDeserializerConfig -- KafkaAvroDeserializerConfig values: 
+01:24:13.680 [main] INFO io.confluent.kafka.serializers.KafkaAvroDeserializerConfig -- KafkaAvroDeserializerConfig values: 
 	auto.register.schemas = true
 	avro.reflection.allow.null = false
 	avro.use.logical.type.converters = false
@@ -313,7 +313,7 @@
 	use.schema.id = -1
 	value.subject.name.strategy = class io.confluent.kafka.serializers.subject.TopicNameStrategy
 
-01:24:14.624 [main] INFO io.confluent.kafka.serializers.KafkaAvroSerializerConfig -- KafkaAvroSerializerConfig values: 
+01:24:13.680 [main] INFO io.confluent.kafka.serializers.KafkaAvroSerializerConfig -- KafkaAvroSerializerConfig values: 
 	auto.register.schemas = true
 	avro.reflection.allow.null = false
 	avro.remove.java.properties = false
@@ -375,7 +375,7 @@
 	use.schema.id = -1
 	value.subject.name.strategy = class io.confluent.kafka.serializers.subject.TopicNameStrategy
 
-01:24:14.624 [main] INFO io.confluent.kafka.serializers.KafkaAvroDeserializerConfig -- KafkaAvroDeserializerConfig values: 
+01:24:13.681 [main] INFO io.confluent.kafka.serializers.KafkaAvroDeserializerConfig -- KafkaAvroDeserializerConfig values: 
 	auto.register.schemas = true
 	avro.reflection.allow.null = false
 	avro.use.logical.type.converters = false
@@ -439,7 +439,7 @@
 	use.schema.id = -1
 	value.subject.name.strategy = class io.confluent.kafka.serializers.subject.TopicNameStrategy
 
-01:24:14.625 [main] INFO io.confluent.kafka.serializers.KafkaAvroSerializerConfig -- KafkaAvroSerializerConfig values: 
+01:24:13.681 [main] INFO io.confluent.kafka.serializers.KafkaAvroSerializerConfig -- KafkaAvroSerializerConfig values: 
 	auto.register.schemas = true
 	avro.reflection.allow.null = false
 	avro.remove.java.properties = false
@@ -501,7 +501,7 @@
 	use.schema.id = -1
 	value.subject.name.strategy = class io.confluent.kafka.serializers.subject.TopicNameStrategy
 
-01:24:14.625 [main] INFO io.confluent.kafka.serializers.KafkaAvroDeserializerConfig -- KafkaAvroDeserializerConfig values: 
+01:24:13.682 [main] INFO io.confluent.kafka.serializers.KafkaAvroDeserializerConfig -- KafkaAvroDeserializerConfig values: 
 	auto.register.schemas = true
 	avro.reflection.allow.null = false
 	avro.use.logical.type.converters = false
@@ -565,7 +565,7 @@
 	use.schema.id = -1
 	value.subject.name.strategy = class io.confluent.kafka.serializers.subject.TopicNameStrategy
 
-01:24:14.626 [main] INFO io.confluent.kafka.serializers.KafkaAvroSerializerConfig -- KafkaAvroSerializerConfig values: 
+01:24:13.682 [main] INFO io.confluent.kafka.serializers.KafkaAvroSerializerConfig -- KafkaAvroSerializerConfig values: 
 	auto.register.schemas = true
 	avro.reflection.allow.null = false
 	avro.remove.java.properties = false
@@ -627,7 +627,7 @@
 	use.schema.id = -1
 	value.subject.name.strategy = class io.confluent.kafka.serializers.subject.TopicNameStrategy
 
-01:24:14.627 [main] INFO io.confluent.kafka.serializers.KafkaAvroDeserializerConfig -- KafkaAvroDeserializerConfig values: 
+01:24:13.682 [main] INFO io.confluent.kafka.serializers.KafkaAvroDeserializerConfig -- KafkaAvroDeserializerConfig values: 
 	auto.register.schemas = true
 	avro.reflection.allow.null = false
 	avro.use.logical.type.converters = false
@@ -691,17 +691,17 @@
 	use.schema.id = -1
 	value.subject.name.strategy = class io.confluent.kafka.serializers.subject.TopicNameStrategy
 
-01:24:14.629 [main] WARN org.apache.kafka.streams.processor.internals.StateDirectory -- Using an OS temp directory in the state.dir property can cause failures with writing the checkpoint file due to the fact that this directory can be cleared by the OS. Resolved state.dir: [/var/folders/yc/7pn4gh_s6f52t5d7gr2rlz3c0000gn/T//kafka-streams]
-01:24:14.695 [main] INFO org.apache.kafka.streams.state.internals.RocksDBTimestampedStore -- Opening store fx-rates-STATE-STORE-0000000006 in regular mode
-01:24:14.695 [main] INFO org.apache.kafka.streams.processor.internals.GlobalStateManagerImpl -- topology-test-driver Restoring state for global store fx-rates-STATE-STORE-0000000006
-01:24:14.695 [main] INFO org.apache.kafka.clients.consumer.internals.SubscriptionState -- Seeking to earliest offset of partition fx-rates-0
-01:24:14.860 [main] INFO org.apache.kafka.streams.processor.internals.ProcessorStateManager -- topology-test-driver State store position-store did not find checkpoint offset, hence would default to the starting offset at changelog test-app-position-store-changelog-0
-01:24:14.860 [main] INFO org.apache.kafka.streams.processor.internals.ProcessorStateManager -- topology-test-driver State store processed-executions-store did not find checkpoint offset, hence would default to the starting offset at changelog test-app-processed-executions-store-changelog-0
-01:24:14.860 [main] INFO org.apache.kafka.streams.processor.internals.ProcessorStateManager -- topology-test-driver State store last-emitted-store did not find checkpoint offset, hence would default to the starting offset at changelog test-app-last-emitted-store-changelog-0
-01:24:14.860 [main] INFO org.apache.kafka.streams.processor.internals.ProcessorStateManager -- topology-test-driver State store buffered-event-store did not find checkpoint offset, hence would default to the starting offset at changelog test-app-buffered-event-store-changelog-0
-01:24:14.860 [main] INFO org.apache.kafka.streams.processor.internals.StreamTask -- stream-thread [main] task [0_0] Initialized
-01:24:14.865 [main] INFO org.apache.kafka.streams.processor.internals.StreamTask -- stream-thread [main] task [0_0] Restored and ready to run
-01:24:14.865 [main] INFO io.confluent.kafka.serializers.KafkaAvroSerializerConfig -- KafkaAvroSerializerConfig values: 
+01:24:13.712 [main] WARN org.apache.kafka.streams.processor.internals.StateDirectory -- Using an OS temp directory in the state.dir property can cause failures with writing the checkpoint file due to the fact that this directory can be cleared by the OS. Resolved state.dir: [/var/folders/yc/7pn4gh_s6f52t5d7gr2rlz3c0000gn/T//kafka-streams]
+01:24:14.073 [main] INFO org.apache.kafka.streams.state.internals.RocksDBTimestampedStore -- Opening store fx-rates-STATE-STORE-0000000006 in regular mode
+01:24:14.078 [main] INFO org.apache.kafka.streams.processor.internals.GlobalStateManagerImpl -- topology-test-driver Restoring state for global store fx-rates-STATE-STORE-0000000006
+01:24:14.081 [main] INFO org.apache.kafka.clients.consumer.internals.SubscriptionState -- Seeking to earliest offset of partition fx-rates-0
+01:24:14.263 [main] INFO org.apache.kafka.streams.processor.internals.ProcessorStateManager -- topology-test-driver State store position-store did not find checkpoint offset, hence would default to the starting offset at changelog test-app-valuation-position-store-changelog-0
+01:24:14.264 [main] INFO org.apache.kafka.streams.processor.internals.ProcessorStateManager -- topology-test-driver State store processed-executions-store did not find checkpoint offset, hence would default to the starting offset at changelog test-app-valuation-processed-executions-store-changelog-0
+01:24:14.264 [main] INFO org.apache.kafka.streams.processor.internals.ProcessorStateManager -- topology-test-driver State store last-emitted-store did not find checkpoint offset, hence would default to the starting offset at changelog test-app-valuation-last-emitted-store-changelog-0
+01:24:14.264 [main] INFO org.apache.kafka.streams.processor.internals.ProcessorStateManager -- topology-test-driver State store buffered-event-store did not find checkpoint offset, hence would default to the starting offset at changelog test-app-valuation-buffered-event-store-changelog-0
+01:24:14.264 [main] INFO org.apache.kafka.streams.processor.internals.StreamTask -- stream-thread [main] task [0_0] Initialized
+01:24:14.270 [main] INFO org.apache.kafka.streams.processor.internals.StreamTask -- stream-thread [main] task [0_0] Restored and ready to run
+01:24:14.270 [main] INFO io.confluent.kafka.serializers.KafkaAvroSerializerConfig -- KafkaAvroSerializerConfig values: 
 	auto.register.schemas = true
 	avro.reflection.allow.null = false
 	avro.remove.java.properties = false
@@ -763,7 +763,7 @@
 	use.schema.id = -1
 	value.subject.name.strategy = class io.confluent.kafka.serializers.subject.TopicNameStrategy
 
-01:24:14.866 [main] INFO io.confluent.kafka.serializers.KafkaAvroDeserializerConfig -- KafkaAvroDeserializerConfig values: 
+01:24:14.271 [main] INFO io.confluent.kafka.serializers.KafkaAvroDeserializerConfig -- KafkaAvroDeserializerConfig values: 
 	auto.register.schemas = true
 	avro.reflection.allow.null = false
 	avro.use.logical.type.converters = false
@@ -827,7 +827,7 @@
 	use.schema.id = -1
 	value.subject.name.strategy = class io.confluent.kafka.serializers.subject.TopicNameStrategy
 
-01:24:14.866 [main] INFO io.confluent.kafka.serializers.KafkaAvroSerializerConfig -- KafkaAvroSerializerConfig values: 
+01:24:14.271 [main] INFO io.confluent.kafka.serializers.KafkaAvroSerializerConfig -- KafkaAvroSerializerConfig values: 
 	auto.register.schemas = true
 	avro.reflection.allow.null = false
 	avro.remove.java.properties = false
@@ -889,7 +889,7 @@
 	use.schema.id = -1
 	value.subject.name.strategy = class io.confluent.kafka.serializers.subject.TopicNameStrategy
 
-01:24:14.866 [main] INFO io.confluent.kafka.serializers.KafkaAvroDeserializerConfig -- KafkaAvroDeserializerConfig values: 
+01:24:14.272 [main] INFO io.confluent.kafka.serializers.KafkaAvroDeserializerConfig -- KafkaAvroDeserializerConfig values: 
 	auto.register.schemas = true
 	avro.reflection.allow.null = false
 	avro.use.logical.type.converters = false
@@ -953,7 +953,7 @@
 	use.schema.id = -1
 	value.subject.name.strategy = class io.confluent.kafka.serializers.subject.TopicNameStrategy
 
-01:24:14.867 [main] INFO io.confluent.kafka.serializers.KafkaAvroSerializerConfig -- KafkaAvroSerializerConfig values: 
+01:24:14.273 [main] INFO io.confluent.kafka.serializers.KafkaAvroSerializerConfig -- KafkaAvroSerializerConfig values: 
 	auto.register.schemas = true
 	avro.reflection.allow.null = false
 	avro.remove.java.properties = false
@@ -1015,7 +1015,7 @@
 	use.schema.id = -1
 	value.subject.name.strategy = class io.confluent.kafka.serializers.subject.TopicNameStrategy
 
-01:24:14.867 [main] INFO io.confluent.kafka.serializers.KafkaAvroDeserializerConfig -- KafkaAvroDeserializerConfig values: 
+01:24:14.273 [main] INFO io.confluent.kafka.serializers.KafkaAvroDeserializerConfig -- KafkaAvroDeserializerConfig values: 
 	auto.register.schemas = true
 	avro.reflection.allow.null = false
 	avro.use.logical.type.converters = false
@@ -1079,11 +1079,147 @@
 	use.schema.id = -1
 	value.subject.name.strategy = class io.confluent.kafka.serializers.subject.TopicNameStrategy
 
-01:24:14.950 [main] INFO com.pnlengine.equities.streaming.PositionProcessor -- Duplicate execution detected and dropped: exec-1
-01:24:15.025 [main] INFO org.apache.kafka.streams.processor.internals.StreamTask -- stream-thread [main] task [0_0] Suspended from RUNNING
-01:24:15.047 [main] INFO org.apache.kafka.streams.processor.internals.RecordCollectorImpl -- topology-test-driver Closing record collector clean
-01:24:15.047 [main] INFO org.apache.kafka.streams.processor.internals.StreamTask -- stream-thread [main] task [0_0] Closed clean
-01:24:15.048 [main] INFO org.apache.kafka.streams.processor.internals.StateDirectory -- stream-thread [main] Deleting task directory 0_0 for 0_0 as user calling cleanup.
+01:24:14.273 [main] INFO io.confluent.kafka.serializers.KafkaAvroSerializerConfig -- KafkaAvroSerializerConfig values: 
+	auto.register.schemas = true
+	avro.reflection.allow.null = false
+	avro.remove.java.properties = false
+	avro.use.logical.type.converters = false
+	basic.auth.credentials.source = URL
+	basic.auth.user.info = [hidden]
+	bearer.auth.cache.expiry.buffer.seconds = 300
+	bearer.auth.client.id = null
+	bearer.auth.client.secret = null
+	bearer.auth.credentials.source = STATIC_TOKEN
+	bearer.auth.custom.provider.class = null
+	bearer.auth.identity.pool.id = null
+	bearer.auth.issuer.endpoint.url = null
+	bearer.auth.logical.cluster = null
+	bearer.auth.scope = null
+	bearer.auth.scope.claim.name = scope
+	bearer.auth.sub.claim.name = sub
+	bearer.auth.token = [hidden]
+	context.name.strategy = class io.confluent.kafka.serializers.context.NullContextNameStrategy
+	http.connect.timeout.ms = 60000
+	http.read.timeout.ms = 60000
+	id.compatibility.strict = true
+	key.subject.name.strategy = class io.confluent.kafka.serializers.subject.TopicNameStrategy
+	latest.cache.size = 1000
+	latest.cache.ttl.sec = -1
+	latest.compatibility.strict = true
+	max.schemas.per.subject = 1000
+	normalize.schemas = false
+	proxy.host = 
+	proxy.port = -1
+	rule.actions = []
+	rule.executors = []
+	rule.service.loader.enable = true
+	schema.format = null
+	schema.reflection = false
+	schema.registry.basic.auth.user.info = [hidden]
+	schema.registry.ssl.cipher.suites = null
+	schema.registry.ssl.enabled.protocols = [TLSv1.2, TLSv1.3]
+	schema.registry.ssl.endpoint.identification.algorithm = https
+	schema.registry.ssl.engine.factory.class = null
+	schema.registry.ssl.key.password = null
+	schema.registry.ssl.keymanager.algorithm = SunX509
+	schema.registry.ssl.keystore.certificate.chain = null
+	schema.registry.ssl.keystore.key = null
+	schema.registry.ssl.keystore.location = null
+	schema.registry.ssl.keystore.password = null
+	schema.registry.ssl.keystore.type = JKS
+	schema.registry.ssl.protocol = TLSv1.3
+	schema.registry.ssl.provider = null
+	schema.registry.ssl.secure.random.implementation = null
+	schema.registry.ssl.trustmanager.algorithm = PKIX
+	schema.registry.ssl.truststore.certificates = null
+	schema.registry.ssl.truststore.location = null
+	schema.registry.ssl.truststore.password = null
+	schema.registry.ssl.truststore.type = JKS
+	schema.registry.url = [mock://test-registry]
+	use.latest.version = false
+	use.latest.with.metadata = null
+	use.schema.id = -1
+	value.subject.name.strategy = class io.confluent.kafka.serializers.subject.TopicNameStrategy
+
+01:24:14.274 [main] INFO io.confluent.kafka.serializers.KafkaAvroDeserializerConfig -- KafkaAvroDeserializerConfig values: 
+	auto.register.schemas = true
+	avro.reflection.allow.null = false
+	avro.use.logical.type.converters = false
+	basic.auth.credentials.source = URL
+	basic.auth.user.info = [hidden]
+	bearer.auth.cache.expiry.buffer.seconds = 300
+	bearer.auth.client.id = null
+	bearer.auth.client.secret = null
+	bearer.auth.credentials.source = STATIC_TOKEN
+	bearer.auth.custom.provider.class = null
+	bearer.auth.identity.pool.id = null
+	bearer.auth.issuer.endpoint.url = null
+	bearer.auth.logical.cluster = null
+	bearer.auth.scope = null
+	bearer.auth.scope.claim.name = scope
+	bearer.auth.sub.claim.name = sub
+	bearer.auth.token = [hidden]
+	context.name.strategy = class io.confluent.kafka.serializers.context.NullContextNameStrategy
+	http.connect.timeout.ms = 60000
+	http.read.timeout.ms = 60000
+	id.compatibility.strict = true
+	key.subject.name.strategy = class io.confluent.kafka.serializers.subject.TopicNameStrategy
+	latest.cache.size = 1000
+	latest.cache.ttl.sec = -1
+	latest.compatibility.strict = true
+	max.schemas.per.subject = 1000
+	normalize.schemas = false
+	proxy.host = 
+	proxy.port = -1
+	rule.actions = []
+	rule.executors = []
+	rule.service.loader.enable = true
+	schema.format = null
+	schema.reflection = false
+	schema.registry.basic.auth.user.info = [hidden]
+	schema.registry.ssl.cipher.suites = null
+	schema.registry.ssl.enabled.protocols = [TLSv1.2, TLSv1.3]
+	schema.registry.ssl.endpoint.identification.algorithm = https
+	schema.registry.ssl.engine.factory.class = null
+	schema.registry.ssl.key.password = null
+	schema.registry.ssl.keymanager.algorithm = SunX509
+	schema.registry.ssl.keystore.certificate.chain = null
+	schema.registry.ssl.keystore.key = null
+	schema.registry.ssl.keystore.location = null
+	schema.registry.ssl.keystore.password = null
+	schema.registry.ssl.keystore.type = JKS
+	schema.registry.ssl.protocol = TLSv1.3
+	schema.registry.ssl.provider = null
+	schema.registry.ssl.secure.random.implementation = null
+	schema.registry.ssl.trustmanager.algorithm = PKIX
+	schema.registry.ssl.truststore.certificates = null
+	schema.registry.ssl.truststore.location = null
+	schema.registry.ssl.truststore.password = null
+	schema.registry.ssl.truststore.type = JKS
+	schema.registry.url = [mock://test-registry]
+	specific.avro.key.type = null
+	specific.avro.reader = true
+	specific.avro.value.type = null
+	use.latest.version = false
+	use.latest.with.metadata = null
+	use.schema.id = -1
+	value.subject.name.strategy = class io.confluent.kafka.serializers.subject.TopicNameStrategy
+
+01:24:14.585 [main] INFO org.apache.kafka.streams.processor.internals.StreamTask -- stream-thread [main] task [0_0] Suspended from RUNNING
+01:24:14.608 [main] INFO org.apache.kafka.streams.processor.internals.RecordCollectorImpl -- topology-test-driver Closing record collector clean
+01:24:14.608 [main] INFO org.apache.kafka.streams.processor.internals.StreamTask -- stream-thread [main] task [0_0] Closed clean
+01:24:14.609 [main] INFO org.apache.kafka.streams.processor.internals.StateDirectory -- stream-thread [main] Deleting task directory 0_0 for 0_0 as user calling cleanup.
 ]]></system-out>
+    <system-err><![CDATA[Sept 03, 2026 1:24:13 AM org.junit.platform.launcher.core.LauncherConfigurationParameters loadClasspathResource
+WARNING: Discovered 2 'junit-platform.properties' configuration files in the classpath; only the first will be used.
+Sept 03, 2026 1:24:13 AM org.junit.platform.launcher.core.LauncherConfigurationParameters loadClasspathResource
+WARNING: Discovered 2 'junit-platform.properties' configuration files in the classpath; only the first will be used.
+Sept 03, 2026 1:24:13 AM org.junit.platform.launcher.core.LauncherConfigurationParameters loadClasspathResource
+WARNING: Discovered 2 'junit-platform.properties' configuration files in the classpath; only the first will be used.
+Sept 03, 2026 1:24:13 AM org.junit.platform.launcher.core.LauncherConfigurationParameters loadClasspathResource
+WARNING: Discovered 2 'junit-platform.properties' configuration files in the classpath; only the first will be used.
+Sept 03, 2026 1:24:13 AM org.junit.platform.launcher.core.LauncherConfigurationParameters loadClasspathResource
+WARNING: Discovered 2 'junit-platform.properties' configuration files in the classpath; only the first will be used.
+]]></system-err>
   </testcase>
 </testsuite>
