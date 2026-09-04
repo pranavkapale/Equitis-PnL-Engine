@@ -1,3 +1,4 @@
 com/pnlengine/equities/streaming/ValuationAndConflationIntegrationTest.class
+com/pnlengine/equities/streaming/Phase4TopologyTest.class
 com/pnlengine/equities/engine/PositionEngineTest.class
 com/pnlengine/equities/streaming/TopologyIntegrationTest.class

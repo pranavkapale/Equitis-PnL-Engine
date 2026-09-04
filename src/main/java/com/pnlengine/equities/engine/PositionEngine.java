@@ -224,4 +224,49 @@ public class PositionEngine {
         }
         return new PositionBook(book.accountId(), book.symbol(), book.netQuantity(), book.costBasis(), book.realizedPnl(), unrealizedPnl, book.openLots());
     }
+
+    public PositionBook cancelLot(PositionBook state, String originalExecutionId) {
+        List<TaxLot> remainingLots = new ArrayList<>(state.openLots());
+        boolean removed = remainingLots.removeIf(lot -> lot.id().equals(originalExecutionId));
+        
+        if (!removed) {
+            throw new IllegalArgumentException("Original execution ID not found in open lots: " + originalExecutionId);
+        }
+
+        BigDecimal currentPrice = inferCurrentPrice(state);
+        BigDecimal newCostBasis = calculateWac(remainingLots);
+        
+        BigDecimal totalRemainingQty = BigDecimal.ZERO;
+        for (TaxLot lot : remainingLots) {
+            totalRemainingQty = totalRemainingQty.add(lot.quantity(), MC);
+        }
+        
+        BigDecimal newNetQuantity = state.netQuantity().compareTo(BigDecimal.ZERO) >= 0 
+            ? totalRemainingQty 
+            : totalRemainingQty.negate();
+
+        PositionBook newBook = new PositionBook(
+                state.accountId(),
+                state.symbol(),
+                newNetQuantity,
+                newCostBasis,
+                state.realizedPnl(),
+                BigDecimal.ZERO, 
+                remainingLots
+        );
+        return withUnrealizedPnl(newBook, currentPrice);
+    }
+
+    private BigDecimal inferCurrentPrice(PositionBook book) {
+        if (book.netQuantity().compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+        }
+        if (book.netQuantity().compareTo(BigDecimal.ZERO) > 0) {
+            // UnrlPnL = (Price - CB) * Qty => Price = (UnrlPnL / Qty) + CB
+            return book.unrealizedPnl().divide(book.netQuantity(), MC).add(book.costBasis(), MC);
+        } else {
+            // UnrlPnL = (CB - Price) * abs(Qty) => Price = CB - (UnrlPnL / abs(Qty))
+            return book.costBasis().subtract(book.unrealizedPnl().divide(book.netQuantity().abs(), MC), MC);
+        }
+    }
 }

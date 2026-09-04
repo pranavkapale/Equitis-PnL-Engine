@@ -1,0 +1,38 @@
+{
+  "type": "record",
+  "name": "AvroTradeLifecycle",
+  "namespace": "com.pnlengine.equities.streaming.avro",
+  "fields": [
+    {
+      "name": "lifecycleId",
+      "type": "string"
+    },
+    {
+      "name": "originalExecutionId",
+      "type": "string"
+    },
+    {
+      "name": "accountId",
+      "type": "string"
+    },
+    {
+      "name": "symbol",
+      "type": "string"
+    },
+    {
+      "name": "action",
+      "type": {
+        "type": "enum",
+        "name": "TradeLifecycleAction",
+        "symbols": ["CANCEL", "AMEND"]
+      }
+    },
+    {
+      "name": "timestamp",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      }
+    }
+  ]
+}

@@ -5,7 +5,11 @@ import com.pnlengine.equities.streaming.avro.AvroFxRate;
 import com.pnlengine.equities.streaming.avro.AvroMarketTick;
 import com.pnlengine.equities.streaming.avro.AvroPnlEvent;
 import com.pnlengine.equities.streaming.avro.AvroPositionBook;
+import com.pnlengine.equities.streaming.avro.AvroRiskEvent;
+import com.pnlengine.equities.streaming.avro.AvroTradeLifecycle;
+import com.pnlengine.equities.valuation.BiTemporalCorrectionProcessor;
 import com.pnlengine.equities.valuation.ConflationProcessor;
+import com.pnlengine.equities.valuation.RiskAggregationProcessor;
 import com.pnlengine.equities.valuation.ValuationProcessor;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
 import org.apache.kafka.common.serialization.Serdes;
@@ -14,6 +18,7 @@ import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.GlobalKTable;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Produced;
+import org.apache.kafka.streams.kstream.Repartitioned;
 import org.apache.kafka.streams.state.KeyValueBytesStoreSupplier;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
@@ -51,6 +56,12 @@ public class TopologyConfiguration {
         SpecificAvroSerde<AvroPnlEvent> pnlEventSerde = new SpecificAvroSerde<>();
         pnlEventSerde.configure(serdeConfig, false);
 
+        SpecificAvroSerde<AvroTradeLifecycle> lifecycleSerde = new SpecificAvroSerde<>();
+        lifecycleSerde.configure(serdeConfig, false);
+
+        SpecificAvroSerde<AvroRiskEvent> riskEventSerde = new SpecificAvroSerde<>();
+        riskEventSerde.configure(serdeConfig, false);
+
         // State Stores
         StoreBuilder<KeyValueStore<String, AvroPositionBook>> positionStoreBuilder = 
                 Stores.keyValueStoreBuilder(Stores.persistentKeyValueStore("position-store"), Serdes.String(), positionBookSerde);
@@ -64,10 +75,18 @@ public class TopologyConfiguration {
         StoreBuilder<KeyValueStore<String, AvroPnlEvent>> bufferedEventStoreBuilder = 
                 Stores.keyValueStoreBuilder(Stores.persistentKeyValueStore("buffered-event-store"), Serdes.String(), pnlEventSerde);
 
+        // Phase 4 Stores
+        StoreBuilder<KeyValueStore<String, String>> riskSymbolPnlStoreBuilder = 
+                Stores.keyValueStoreBuilder(Stores.persistentKeyValueStore("risk-symbol-pnl-store"), Serdes.String(), Serdes.String());
+        StoreBuilder<KeyValueStore<String, String>> riskAccountEquityStoreBuilder = 
+                Stores.keyValueStoreBuilder(Stores.persistentKeyValueStore("risk-account-equity-store"), Serdes.String(), Serdes.String());
+
         streamsBuilder.addStateStore(positionStoreBuilder);
         streamsBuilder.addStateStore(executionStoreBuilder);
         streamsBuilder.addStateStore(lastEmittedStoreBuilder);
         streamsBuilder.addStateStore(bufferedEventStoreBuilder);
+        streamsBuilder.addStateStore(riskSymbolPnlStoreBuilder);
+        streamsBuilder.addStateStore(riskAccountEquityStoreBuilder);
 
         // Phase 2: Trade Executions -> Position Processor
         KStream<String, AvroPositionBook> positionStream = streamsBuilder
@@ -91,8 +110,13 @@ public class TopologyConfiguration {
                 .stream("market-ticks", Consumed.with(Serdes.String(), tickSerde))
                 .process(ValuationProcessor::new, "position-store");
 
-        // Merge Trade PnL and Market PnL streams
-        KStream<String, AvroPnlEvent> mergedPnlStream = tradePnlStream.merge(marketPnlStream);
+        // Phase 4: Bi-Temporal Correction
+        KStream<String, AvroPnlEvent> correctionPnlStream = streamsBuilder
+                .stream("trade-lifecycle", Consumed.with(Serdes.String(), lifecycleSerde))
+                .process(BiTemporalCorrectionProcessor::new, "position-store");
+
+        // Merge Trade PnL, Market PnL, and Correction PnL streams
+        KStream<String, AvroPnlEvent> mergedPnlStream = tradePnlStream.merge(marketPnlStream).merge(correctionPnlStream);
 
         // Phase 3: FX GlobalKTable
         GlobalKTable<String, AvroFxRate> fxRatesTable = streamsBuilder
@@ -111,8 +135,16 @@ public class TopologyConfiguration {
         );
 
         // Phase 3: Conflation & Egress
-        normalizedPnlStream
-                .process(ConflationProcessor::new, "last-emitted-store", "buffered-event-store")
-                .to("pnl-events", Produced.with(Serdes.String(), pnlEventSerde));
+        KStream<String, AvroPnlEvent> conflatedPnlStream = normalizedPnlStream
+                .process(ConflationProcessor::new, "last-emitted-store", "buffered-event-store");
+                
+        conflatedPnlStream.to("pnl-events", Produced.with(Serdes.String(), pnlEventSerde));
+
+        // Phase 4: Risk Aggregation
+        conflatedPnlStream
+                .selectKey((k, v) -> v.getAccountId())
+                .repartition(Repartitioned.with(Serdes.String(), pnlEventSerde))
+                .process(RiskAggregationProcessor::new, "risk-symbol-pnl-store", "risk-account-equity-store")
+                .to("risk-events", Produced.with(Serdes.String(), riskEventSerde));
     }
 }
