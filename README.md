@@ -1,23 +1,45 @@
-# Equitis PnL Engine
+# Equitis PnL Engine 📈 💼
 
-A high-performance, deterministic financial accounting and PnL calculation engine built with pure Java 25, Kafka Streams, and Spring Boot WebFlux. 
+## 📌 Overview
+**Equitis PnL Engine** is a high-performance, deterministic financial accounting and PnL calculation engine built with pure Java 25, Kafka Streams, and Spring Boot WebFlux. 
 
-## Architecture
+By analyzing real-time trade executions and market ticks, this engine calculates deterministic cost basis, lot matching, Realized PnL, and base Unrealized PnL while maintaining robust state consistency.
 
-The system is built across 5 phases:
-1. **Domain Kernel**: A pure Java, framework-agnostic financial math engine utilizing `java.math.BigDecimal` (DECIMAL128) for deterministic cost basis, lot matching, and Realized/Unrealized PnL calculations.
-2. **Kafka Streams Ingress & Materialized State**: Wraps the Domain Kernel in a distributed stream processing topology backed by RocksDB to maintain the `PositionBook` state.
-3. **Market Data & Conflation**: Integrates live Mark-to-Market (MtM) prices via market ticks and conflates output emissions to reduce downstream load.
-4. **Bi-Temporal Correction & Egress**: Handles canceled/busted trades retroactively, computes margin risk events, and exposes a decoupled Reactive WebFlux gateway for UI/WebSocket consumption.
-5. **Production Hardening**: Tuned RocksDB settings, enabled Generational ZGC for sub-millisecond GC pauses, and integrated Micrometer/Prometheus for latency and state size observability.
+**Key Features:**
+* **Deterministic Accounting:** Framework-agnostic domain kernel using `java.math.BigDecimal` (DECIMAL128) for high-precision lot matching and calculations.
+* **Stream Processing:** Kafka Streams topology backed by RocksDB for maintaining distributed `PositionBook` state and high-throughput ingestion.
+* **Risk Aggregation:** Computes margin risk events and bi-temporal corrections for canceled/busted trades.
+* **Low Latency:** Tuned RocksDB settings and Java 25 Generational ZGC for sub-millisecond GC pauses.
 
-## Prerequisites
+---
 
-- Java 25 or higher
-- Apache Maven
-- Docker & Docker Compose (for running local Kafka)
+## 🏗 Architecture
+The pipeline follows a 5-phase architecture:
 
-## Testing the Implementation
+1.  **Domain Kernel (Raw):** Pure Java financial math engine for calculating PnL without framework dependencies.
+2.  **Kafka Streams Ingress (Stateful):** Wraps the Domain Kernel to ingest Avro payloads and manage the materialized `PositionBook` state via RocksDB.
+3.  **Market Data & Conflation (Enriched):** Integrates live Mark-to-Market (MtM) prices and applies FX normalization using `GlobalKTable` lookups, conflating events to reduce egress volume.
+4.  **Correction & Egress (Analytics):** Applies retro-active trade corrections and exposes a decoupled Reactive WebFlux gateway for downstream UI/WebSocket consumption.
+5.  **Observability (Monitor):** Micrometer/Prometheus integration for tracking latency and memory footprint.
+
+---
+
+## 🛠 Tech Stack
+* **Language:** Java 25
+* **Stream Processing:** [Kafka Streams](https://kafka.apache.org/documentation/streams/)
+* **Framework:** [Spring Boot 4.1.1](https://spring.io/projects/spring-boot) & Spring WebFlux
+* **State Store:** [RocksDB](https://rocksdb.org/)
+* **Serialization:** [Avro](https://avro.apache.org/) & Confluent Schema Registry
+* **Build Tool:** [Maven](https://maven.apache.org/)
+* **Infrastructure:** Docker & Docker Compose
+
+---
+
+## 🚀 How to Run
+
+### Prerequisites
+* [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
+* **Java 25+** and **Maven** (optional, wrapper `mvnw` is provided).
 
 ### 1. Run the Automated Test Suite
 The engine includes a comprehensive suite of unit tests for the pure Java domain and `TopologyTestDriver` integration tests for the Kafka Streams topology.
@@ -26,18 +48,17 @@ The engine includes a comprehensive suite of unit tests for the pure Java domain
 ./mvnw clean test
 ```
 
-### 2. Run Locally with Kafka
+### 2. Start Infrastructure
+Start the local Kafka cluster and Zookeeper:
 
-You can run the engine end-to-end on your local machine using the provided `docker-compose.yml` to spin up a local Kafka cluster.
-
-**Step A: Start Kafka**
 ```bash
 docker-compose up -d
 ```
-Wait for Zookeeper and Kafka to fully initialize (usually takes ~15-30 seconds).
+*Wait for Zookeeper and Kafka to fully initialize (usually takes ~15-30 seconds).*
 
-**Step B: Create Kafka Topics**
+### 3. Create Kafka Topics
 Kafka Streams requires the `fx-rates` topic to exist before it can initialize its `GlobalKTable` state store. You can create the required input topics by executing the following commands via the running Kafka container:
+
 ```bash
 docker-compose exec kafka kafka-topics --create --topic fx-rates --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
 docker-compose exec kafka kafka-topics --create --topic trade-executions --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
@@ -45,14 +66,16 @@ docker-compose exec kafka kafka-topics --create --topic market-ticks --bootstrap
 docker-compose exec kafka kafka-topics --create --topic trade-lifecycle --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
 ```
 
-**Step C: Build and Start the Engine**
+### 4. Build and Start the Engine
 Use the provided launch script which builds the fat JAR and applies the required `-XX:+UseZGC` tuning for Java 25:
+
 ```bash
 ./mvnw clean package -DskipTests
 ./start-engine.sh
 ```
+*(To stop the engine gracefully in your terminal, press `Ctrl + C`)*
 
-**Step D: Observe Metrics**
+### 5. Observe Metrics
 While the engine is running, you can scrape Prometheus metrics via the Spring Boot Actuator endpoint:
 ```
 http://localhost:8080/actuator/prometheus
@@ -61,14 +84,7 @@ Key metrics to look for:
 - `equitis_pnl_calculation_latency_seconds`: Measures the time taken to apply executions and calculate PnL.
 - `equitis_active_position_book_lots`: Tracks the number of active tax lots in memory.
 
-### 3. Simulating Data (Manual Testing)
-
-Because the engine relies on Kafka Avro serialization configured with a `mock://` Schema Registry for local development, the easiest way to manually test it is to write a small Kafka Producer script in Java or use a Kafka GUI tool that supports mocking the Confluent Schema Registry. 
-
-Alternatively, you can observe the pipeline's deterministic behavior directly through the `TopologyIntegrationTest.java` and `Phase4TopologyTest.java` files, which simulate data flowing into `trade-executions`, `market-ticks`, and `trade-lifecycle` topics and verify the outbound `pnl-events`.
-
-## Stopping
-
+### 6. Stopping
 To gracefully stop the local Kafka cluster and remove the containers, run:
 ```bash
 docker-compose down
