@@ -15,8 +15,11 @@ public class RocksDBConfiguration implements RocksDBConfigSetter {
     @Override
     public void setConfig(final String storeName, final Options options, final Map<String, Object> configs) {
         
-        // Use a block-based table configuration
-        BlockBasedTableConfig tableConfig = new BlockBasedTableConfig();
+        // Use the existing block-based table configuration provided by Kafka Streams
+        BlockBasedTableConfig tableConfig = (BlockBasedTableConfig) options.tableFormatConfig();
+        if (tableConfig == null) {
+            tableConfig = new BlockBasedTableConfig();
+        }
         
         // 1. Cap off-heap memory usage via Block Cache
         tableConfig.setBlockCacheSize(BLOCK_CACHE_SIZE);

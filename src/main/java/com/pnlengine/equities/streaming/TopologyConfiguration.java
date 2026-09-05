@@ -30,10 +30,30 @@ import io.micrometer.core.instrument.MeterRegistry;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
+import org.apache.kafka.streams.StreamsConfig;
+import org.springframework.context.annotation.Bean;
+import org.springframework.kafka.annotation.EnableKafkaStreams;
+import org.springframework.kafka.annotation.KafkaStreamsDefaultConfiguration;
+import org.springframework.kafka.config.KafkaStreamsConfiguration;
+import com.pnlengine.equities.config.RocksDBConfiguration;
 
 @Configuration
+@EnableKafkaStreams
 public class TopologyConfiguration {
+
+    @Bean(name = KafkaStreamsDefaultConfiguration.DEFAULT_STREAMS_CONFIG_BEAN_NAME)
+    public static KafkaStreamsConfiguration defaultKafkaStreamsConfig() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "equitis-pnl-engine");
+        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.StringSerde.class.getName());
+        props.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, StreamsConfig.EXACTLY_ONCE_V2);
+        props.put(StreamsConfig.NUM_STANDBY_REPLICAS_CONFIG, 1);
+        props.put("rocksdb.config.setter", RocksDBConfiguration.class.getName());
+        return new KafkaStreamsConfiguration(props);
+    }
 
     @Value("${spring.kafka.properties.schema.registry.url:mock://localhost:8081}")
     private String schemaRegistryUrl;
