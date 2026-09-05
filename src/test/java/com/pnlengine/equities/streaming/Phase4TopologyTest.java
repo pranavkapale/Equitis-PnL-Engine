@@ -19,6 +19,7 @@ import org.apache.kafka.streams.TopologyTestDriver;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -43,6 +44,10 @@ public class Phase4TopologyTest {
         java.lang.reflect.Field urlField = TopologyConfiguration.class.getDeclaredField("schemaRegistryUrl");
         urlField.setAccessible(true);
         urlField.set(config, "mock://test-registry");
+        
+        java.lang.reflect.Field registryField = TopologyConfiguration.class.getDeclaredField("meterRegistry");
+        registryField.setAccessible(true);
+        registryField.set(config, new SimpleMeterRegistry());
         
         StreamsBuilder builder = new StreamsBuilder();
         config.buildPipeline(builder);

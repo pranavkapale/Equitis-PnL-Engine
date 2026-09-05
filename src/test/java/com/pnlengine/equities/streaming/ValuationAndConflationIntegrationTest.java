@@ -16,6 +16,7 @@ import org.apache.kafka.streams.TopologyTestDriver;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
@@ -34,9 +35,16 @@ public class ValuationAndConflationIntegrationTest {
     private TestOutputTopic<String, AvroPnlEvent> outputTopic;
 
     @BeforeEach
-    public void setup() {
+    public void setup() throws Exception {
         TopologyConfiguration config = new TopologyConfiguration();
-        ReflectionTestUtils.setField(config, "schemaRegistryUrl", "mock://test-registry");
+        
+        java.lang.reflect.Field urlField = TopologyConfiguration.class.getDeclaredField("schemaRegistryUrl");
+        urlField.setAccessible(true);
+        urlField.set(config, "mock://test-registry");
+
+        java.lang.reflect.Field registryField = TopologyConfiguration.class.getDeclaredField("meterRegistry");
+        registryField.setAccessible(true);
+        registryField.set(config, new SimpleMeterRegistry());
 
         StreamsBuilder builder = new StreamsBuilder();
         config.buildPipeline(builder);

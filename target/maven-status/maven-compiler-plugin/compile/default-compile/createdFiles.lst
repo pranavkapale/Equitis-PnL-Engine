@@ -21,6 +21,7 @@ com/pnlengine/equities/streaming/avro/AvroRiskEvent.class
 com/pnlengine/equities/valuation/ConflationProcessor.class
 com/pnlengine/equities/streaming/avro/AvroPnlEvent.class
 com/pnlengine/equities/domain/Execution.class
+com/pnlengine/equities/config/RocksDBConfiguration.class
 com/pnlengine/equities/streaming/PositionProcessor.class
 com/pnlengine/equities/streaming/avro/AvroExecution.class
 com/pnlengine/equities/streaming/avro/TradeLifecycleAction.class

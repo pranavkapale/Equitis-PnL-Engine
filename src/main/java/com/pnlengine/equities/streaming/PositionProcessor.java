@@ -12,6 +12,9 @@ import org.apache.kafka.streams.processor.api.Record;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class PositionProcessor implements Processor<String, AvroExecution, String, AvroPositionBook> {
     private static final Logger log = LoggerFactory.getLogger(PositionProcessor.class);
@@ -20,6 +23,16 @@ public class PositionProcessor implements Processor<String, AvroExecution, Strin
     private KeyValueStore<String, AvroPositionBook> positionStore;
     private KeyValueStore<String, String> processedExecutionsStore;
     private final PositionEngine positionEngine = new PositionEngine();
+    
+    private final MeterRegistry meterRegistry;
+    private final Timer calculationTimer;
+    private final AtomicInteger activePositionBookLots;
+
+    public PositionProcessor(MeterRegistry meterRegistry) {
+        this.meterRegistry = meterRegistry;
+        this.calculationTimer = meterRegistry.timer("equitis_pnl_calculation_latency_seconds");
+        this.activePositionBookLots = meterRegistry.gauge("equitis_active_position_book_lots", new AtomicInteger(0));
+    }
 
     @Override
     public void init(ProcessorContext<String, AvroPositionBook> context) {
@@ -51,7 +64,15 @@ public class PositionProcessor implements Processor<String, AvroExecution, Strin
                 ? AvroDomainMapper.toDomain(avroState) 
                 : PositionBook.empty(execution.accountId(), execution.symbol());
 
-        PositionBook newState = positionEngine.applyExecution(currentState, execution, LotMatchingStrategy.FIFO);
+        // Measure PnL calculation latency
+        PositionBook newState = calculationTimer.record(() -> 
+            positionEngine.applyExecution(currentState, execution, LotMatchingStrategy.FIFO)
+        );
+        
+        // Track the size (number of open lots) of the currently active position book
+        if (newState != null && newState.openLots() != null) {
+            activePositionBookLots.set(newState.openLots().size());
+        }
         
         AvroPositionBook avroNewState = AvroDomainMapper.toAvro(newState);
         

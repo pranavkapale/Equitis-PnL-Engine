@@ -10,6 +10,8 @@ import org.apache.kafka.streams.processor.api.Processor;
 import org.apache.kafka.streams.processor.api.ProcessorContext;
 import org.apache.kafka.streams.processor.api.Record;
 import org.apache.kafka.streams.state.KeyValueStore;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 
 import java.time.Instant;
 import java.util.stream.Collectors;
@@ -19,9 +21,13 @@ public class BiTemporalCorrectionProcessor implements Processor<String, AvroTrad
     private ProcessorContext<String, AvroPnlEvent> context;
     private KeyValueStore<String, AvroPositionBook> positionStore;
     private final PositionEngine engine;
+    private final MeterRegistry meterRegistry;
+    private final Timer calculationTimer;
 
-    public BiTemporalCorrectionProcessor() {
+    public BiTemporalCorrectionProcessor(MeterRegistry meterRegistry) {
         this.engine = new PositionEngine();
+        this.meterRegistry = meterRegistry;
+        this.calculationTimer = meterRegistry.timer("equitis_pnl_calculation_latency_seconds");
     }
 
     @Override
@@ -62,7 +68,9 @@ public class BiTemporalCorrectionProcessor implements Processor<String, AvroTrad
 
         try {
             // Recalculate
-            PositionBook newState = engine.cancelLot(state, lifecycle.getOriginalExecutionId());
+            PositionBook newState = calculationTimer.record(() -> 
+                engine.cancelLot(state, lifecycle.getOriginalExecutionId())
+            );
 
             // Convert back to Avro and store
             AvroPositionBook newAvroBook = AvroPositionBook.newBuilder()

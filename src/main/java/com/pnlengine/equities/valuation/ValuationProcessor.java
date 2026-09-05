@@ -9,6 +9,8 @@ import org.apache.kafka.streams.processor.api.Processor;
 import org.apache.kafka.streams.processor.api.ProcessorContext;
 import org.apache.kafka.streams.processor.api.Record;
 import org.apache.kafka.streams.state.KeyValueStore;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 
 import java.math.BigDecimal;
 
@@ -16,6 +18,13 @@ public class ValuationProcessor implements Processor<String, AvroMarketTick, Str
 
     private ProcessorContext<String, AvroPnlEvent> context;
     private KeyValueStore<String, AvroPositionBook> positionStore;
+    private final MeterRegistry meterRegistry;
+    private final Timer calculationTimer;
+
+    public ValuationProcessor(MeterRegistry meterRegistry) {
+        this.meterRegistry = meterRegistry;
+        this.calculationTimer = meterRegistry.timer("equitis_pnl_calculation_latency_seconds");
+    }
 
     @Override
     public void init(ProcessorContext<String, AvroPnlEvent> context) {
@@ -36,16 +45,15 @@ public class ValuationProcessor implements Processor<String, AvroMarketTick, Str
 
         PositionBook domainPosition = AvroDomainMapper.toDomain(avroPosition);
         
-        BigDecimal price = tick.getPrice();
-        BigDecimal netQuantity = domainPosition.netQuantity();
-        BigDecimal costBasis = domainPosition.costBasis();
-        
-        // Market Value = price * netQuantity
-        // Total Cost = costBasis (per unit) * netQuantity
-        // Unrealized PnL = Market Value - Total Cost
-        BigDecimal marketValue = price.multiply(netQuantity);
-        BigDecimal totalCost = costBasis.multiply(netQuantity);
-        BigDecimal unrealizedPnl = marketValue.subtract(totalCost);
+        BigDecimal unrealizedPnl = calculationTimer.record(() -> {
+            BigDecimal price = tick.getPrice();
+            BigDecimal netQuantity = domainPosition.netQuantity();
+            BigDecimal costBasis = domainPosition.costBasis();
+            
+            BigDecimal marketValue = price.multiply(netQuantity);
+            BigDecimal totalCost = costBasis.multiply(netQuantity);
+            return marketValue.subtract(totalCost);
+        });
 
         AvroPnlEvent pnlEvent = AvroPnlEvent.newBuilder()
                 .setAccountId(domainPosition.accountId())

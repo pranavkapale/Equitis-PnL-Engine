@@ -17,6 +17,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -36,6 +37,7 @@ public class TopologyIntegrationTest {
     public void setup() {
         TopologyConfiguration config = new TopologyConfiguration();
         ReflectionTestUtils.setField(config, "schemaRegistryUrl", "mock://test-registry");
+        ReflectionTestUtils.setField(config, "meterRegistry", new SimpleMeterRegistry());
 
         StreamsBuilder builder = new StreamsBuilder();
         config.buildPipeline(builder);

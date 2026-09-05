@@ -8,5 +8,13 @@ spring:
       properties:
         processing.guarantee: exactly_once_v2
         default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+        num.standby.replicas: 1
+        rocksdb.config.setter: com.pnlengine.equities.config.RocksDBConfiguration
     properties:
       schema.registry.url: mock://equitis-registry
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus

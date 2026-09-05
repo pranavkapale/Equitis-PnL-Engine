@@ -26,6 +26,7 @@ import org.apache.kafka.streams.state.Stores;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import io.micrometer.core.instrument.MeterRegistry;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -36,6 +37,9 @@ public class TopologyConfiguration {
 
     @Value("${spring.kafka.properties.schema.registry.url:mock://localhost:8081}")
     private String schemaRegistryUrl;
+
+    @Autowired
+    private MeterRegistry meterRegistry;
 
     @Autowired
     public void buildPipeline(StreamsBuilder streamsBuilder) {
@@ -91,7 +95,7 @@ public class TopologyConfiguration {
         // Phase 2: Trade Executions -> Position Processor
         KStream<String, AvroPositionBook> positionStream = streamsBuilder
                 .stream("trade-executions", Consumed.with(Serdes.String(), executionSerde))
-                .process(PositionProcessor::new, "position-store", "processed-executions-store");
+                .process(() -> new PositionProcessor(meterRegistry), "position-store", "processed-executions-store");
 
         // Convert trades to PnL events (using the raw book state)
         KStream<String, AvroPnlEvent> tradePnlStream = positionStream.mapValues(pos -> 
@@ -108,12 +112,12 @@ public class TopologyConfiguration {
         // Phase 3: Market Ticks -> Valuation Processor (MtM)
         KStream<String, AvroPnlEvent> marketPnlStream = streamsBuilder
                 .stream("market-ticks", Consumed.with(Serdes.String(), tickSerde))
-                .process(ValuationProcessor::new, "position-store");
+                .process(() -> new ValuationProcessor(meterRegistry), "position-store");
 
         // Phase 4: Bi-Temporal Correction
         KStream<String, AvroPnlEvent> correctionPnlStream = streamsBuilder
                 .stream("trade-lifecycle", Consumed.with(Serdes.String(), lifecycleSerde))
-                .process(BiTemporalCorrectionProcessor::new, "position-store");
+                .process(() -> new BiTemporalCorrectionProcessor(meterRegistry), "position-store");
 
         // Merge Trade PnL, Market PnL, and Correction PnL streams
         KStream<String, AvroPnlEvent> mergedPnlStream = tradePnlStream.merge(marketPnlStream).merge(correctionPnlStream);
